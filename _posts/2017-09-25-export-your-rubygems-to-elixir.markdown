@@ -266,6 +266,6 @@ Presto...you are using ruby with bundler to build a schedule via `ice_cube` in y
 
 You can find the [ export_ruby code ](https://github.com/shamil614/export_ruby) on Github.
 
-In closing thoughts, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I'll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven't deployed the feature to production, but I just started testing locally and everything works great. As long as you're passing simple data types, `export/erlport` should be considered when you need a ruby gem but can't find an equivalent hex package, or simply don't have the time to write it in Elixir.
+In closing, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I'll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven't deployed the feature to production, but I just started testing locally and everything works great. As long as you're passing simple data types, `export/erlport` should be considered when you need a ruby gem but can't find an equivalent hex package, or simply don't have the time to write it in Elixir.
 
 I hope this post helps others and saves you the many days I spent working to get `export` running in my Elixir app. 

@@ -450,7 +450,7 @@ iex(5)&gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
 
 <p>You can find the <a href="https://github.com/shamil614/export_ruby"> export_ruby code </a> on Github.</p>
 
-<p>In closing thoughts, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I’ll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven’t deployed the feature to production, but I just started testing locally and everything works great. As long as you’re passing simple data types, <code class="highlighter-rouge">export/erlport</code> should be considered when you need a ruby gem but can’t find an equivalent hex package, or simply don’t have the time to write it in Elixir.</p>
+<p>In closing, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I’ll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven’t deployed the feature to production, but I just started testing locally and everything works great. As long as you’re passing simple data types, <code class="highlighter-rouge">export/erlport</code> should be considered when you need a ruby gem but can’t find an equivalent hex package, or simply don’t have the time to write it in Elixir.</p>
 
 <p>I hope this post helps others and saves you the many days I spent working to get <code class="highlighter-rouge">export</code> running in my Elixir app.</p>
 
