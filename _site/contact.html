@@ -176,7 +176,7 @@
 
     <section class="page-header">
       <h1 class="project-name">Contact</h1>
-      <h2 class="project-tagline">Create a contact form and you are good to go</h2>
+      <h2 class="project-tagline">Let&#39;s chat. Maybe I can help with your team or project.</h2>
       
       <!-- Post tagline -->
       
@@ -188,14 +188,18 @@
       <article>
 
   <div>
-    <p>Jekyll is a great tool to create static sites but with static site, there’s no backend to send your data to: that is why it’s hard to put a form on a Jekyll site.</p>
+    <form action="https://formspree.io/shamil614@gmail.com" method="POST">
+<label for="name">Your name</label>
+<input type="hidden" name="_subject" value="Blog Contact Request" />
+<input type="text" name="name" />
+<label for="_replyto">Your email</label>
+<input type="email" name="_replyto" />  <br /> <br />
 
-<p>Here listed some resources which provide  a saas service as a backend for forms (contact forms, hiring forms, etc.) to designers and developers like you:</p>
-<ol>
-  <li><a href="https://formspree.io/">Formspree (also open source, free)</a></li>
-  <li><a href="https://formkeep.com/guides/contact-form-jekyll">FormKeep</a></li>
-  <li><a href="https://getsimpleform.com/">Simple Form</a></li>
-</ol>
+<label for="body">What's up?</label>
+<textarea name="body" placeholder="What's on your mind?" style="width: 90%"> </textarea>
+<br /><br />
+<input type="submit" value="Send" />
+</form>
 
 <p><a href="http://localhost:4000/">Go to the Home Page</a></p>
 

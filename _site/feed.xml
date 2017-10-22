@@ -1,4 +1,227 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-09-24T16:04:50-05:00</updated><id>http://localhost:4000/</id><title type="html">Scott Hamilton’s Blog</title><subtitle>Learnings as a Sr. Software Engineer programming in Ruby and Elixir.</subtitle><author><name>Scott Hamilton</name></author><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2017-09-24T11:00:54-05:00</published><updated>2017-09-24T11:00:54-05:00</updated><id>http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll.html">&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated!&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-10-22T11:15:32-05:00</updated><id>http://localhost:4000/</id><title type="html">Scott Hamilton’s Blog</title><subtitle>Learnings as a Sr. Software Engineer programming in Ruby and Elixir.</subtitle><author><name>Scott Hamilton</name></author><entry><title type="html">Export Your RubyGems to Elixir</title><link href="http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir.html" rel="alternate" type="text/html" title="Export Your RubyGems to Elixir" /><published>2017-09-24T11:00:54-05:00</published><updated>2017-09-24T11:00:54-05:00</updated><id>http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir</id><content type="html" xml:base="http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir.html">&lt;p&gt;Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some RubyGems that are well developed and don’t have a comparable Hex package. If you find yourself needing some functionality from a gem, but can’t find a comparable Hex package or don’t have the time write the functionality in Elixr, then &lt;a href=&quot;https://github.com/fazibear/export&quot;&gt;Export&lt;/a&gt; can help.&lt;/p&gt;
+
+&lt;p&gt;Export is just a handy wrapper around the Erlang &lt;a href=&quot;http://erlport.org/&quot;&gt;ErlPort&lt;/a&gt; package. I don’t want to go into too much detail around &lt;code class=&quot;highlighter-rouge&quot;&gt;ErlPort&lt;/code&gt; since there’s better resources on the topic. Basically &lt;code class=&quot;highlighter-rouge&quot;&gt;ErlPort&lt;/code&gt; starts a Ruby (or Python) process which can send and receive messages via Erlang Ports.&lt;/p&gt;
+
+&lt;p&gt;Alright, I can see how this might be controversial, but there’s a time and a place for everything. In my case I was working on porting over a major API endpoint over to Elixir, but coudln’t find a good subsitution for the &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube&lt;/code&gt; gem.&lt;/p&gt;
+
+&lt;p&gt;My first approach was to try to use Ruby to do the scheduling logic, which was already well tested in Ruby. Then send the IceCube data to the Elixir microservice (OTP Application). Long story short, I decided against that approach because it would require a good deal of rework on the Ruby side, and made it harder to port the existing logic to Elixir. Also, I discovered &lt;code class=&quot;highlighter-rouge&quot;&gt;Export&lt;/code&gt; after stumbling across these blogs:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d&quot;&gt;Elixir, Ruby, don’t fight. Talk… with Export/Erlport&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d&quot;&gt;Ruby code in Elixir project&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;While those blogs are great resources to get started, there really wansn’t much there to help with how to actually use a RubGem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of ruby gem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I’ll walk through an example of how I got &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; to use bundler via &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Create a new Elixir application&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mix new export_ruby
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;export_ruby&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Add Export as a dependency&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# mix.exs&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;defp&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;deps&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;~&amp;gt; 0.1.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Fetch dependencies&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mix deps.get&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Create a directory for the ruby code to live in. &lt;code class=&quot;highlighter-rouge&quot;&gt;priv&lt;/code&gt; is ideal since it’s included in the compilation process by default.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mkdir &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; priv/ruby&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The steps above are standard affair, and resemble those other blog posts. This is the part where I start to diverge.&lt;/p&gt;
+
+&lt;p&gt;Let’s say you need to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube&lt;/code&gt; gem like I did. Since &lt;code class=&quot;highlighter-rouge&quot;&gt;priv/ruby&lt;/code&gt; is where all the ruby goodness goes…let’s create a &lt;code class=&quot;highlighter-rouge&quot;&gt;Gemfile&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;bundler&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;priv/ruby
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gem install bundler
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundler init&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;After adding &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;ActiveSupport&lt;/code&gt; to the Gemfile bundler created it looks like what I have below. Note: I added &lt;code class=&quot;highlighter-rouge&quot;&gt;ActiveSupport&lt;/code&gt; because of the utilities it provides in parsing Dates and Times.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# export_ruby/priv/ruby/Gemfile&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# frozen_string_literal: true&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;source&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;https://rubygems.org&quot;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;git_source&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:github&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;repo_name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;https://github.com/&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;repo_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Needed for Date Time extensions&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gem&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;activesupport&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;4.2.9&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# handles repeated events / schedules.&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gem&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ice_cube&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;git: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://github.com/seejohnrun/ice_cube.git&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;ref: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;full_tz&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Your terminal shell should already be in &lt;code class=&quot;highlighter-rouge&quot;&gt;export_ruby/priv/ruby&lt;/code&gt; then we need to get the gems.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle install&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Note that I’m using a specific branch of &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube&lt;/code&gt; that is fetched from Github via bundler. At the time of this writing, we needed full timezone support and the changes needed were not yet in a released version.&lt;/p&gt;
+
+&lt;p&gt;Now it’s time to get coding. We’re going to build a &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube::Schedule&lt;/code&gt; to get series of dates and times. That means we need a ruby file to execute the &lt;code class=&quot;highlighter-rouge&quot;&gt;IceCube&lt;/code&gt; code.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# export_ruby/priv/ruby/schedule.rb&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# frozen_string_literal: true&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ice_cube&quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;active_support/time&quot;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;daily&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# time should be a string. needs to be a Time/DateTime object for IceCube.&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;IceCube&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;add_recurrence_rule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;IceCube&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Rule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;daily&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# complex objects don't serialize well via ports. &lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# best to use simple objects (strings, integers, etc).&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;all_occurrences&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:to_s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;While in the &lt;code class=&quot;highlighter-rouge&quot;&gt;export_ruby/priv/ruby&lt;/code&gt; directory, use bundler to install the gem dependencies.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle install
+Using i18n 0.8.6
+Using minitest 5.10.3
+Using thread_safe 0.3.6
+Using bundler 1.15.4
+Using ice_cube 0.16.2 from https://github.com/seejohnrun/ice_cube.git &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;at full_tz@10ed1e4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Using tzinfo 1.2.3
+Using activesupport 4.2.9&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;You should see &lt;code class=&quot;highlighter-rouge&quot;&gt;ice_cube&lt;/code&gt; installed with &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle list&lt;/code&gt;, but not when you run &lt;code class=&quot;highlighter-rouge&quot;&gt;gem list&lt;/code&gt;. This is an important distinction. That’s because bundler is managing the dependency from Github, and the gem install installed in a different path from the system gems.&lt;/p&gt;
+
+&lt;p&gt;Since this is an Elixir application, we need Elixir code to call the Ruby code.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# export_ruby/lib/schedule.ex&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ExportRuby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schedule&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Export&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# Path to ruby files relative to the project root&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;@ruby_lib&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:export_ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;priv/ruby&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;daily&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# passing simple data types&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;arguments&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;# Note I'm using `start_link` vs `start` as other examples show.&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Ensures the ruby process is cleaned up after parent process stops or crashes.&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# This example is not the most efficient technique as this starts and &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# stops a ruby process on EVERY function call, which works but starting and &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# stopping the process each time adds overhead.&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;ruby_lib:&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;@ruby_lib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;schedule&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;daily&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now that all the parts are setup, let’s give it a try. Remember to pass &lt;code class=&quot;highlighter-rouge&quot;&gt;-S mix&lt;/code&gt; to iex.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;iex &lt;span class=&quot;nt&quot;&gt;-S&lt;/span&gt; mix&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-iex&quot; data-lang=&quot;iex&quot;&gt;iex(1)&amp;gt; start_time = DateTime.utc_now
+
+iex(2)&amp;gt; ExportRuby.Schedule.daily(start_time, 2)
+  
+iex(3)&amp;gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
+** (ErlangError) erlang error: {:ruby, :LoadError, &quot;cannot load such file -- ice_cube&quot;, [&quot;-e:1:in `&amp;lt;main&amp;gt;'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/cli.rb:94:in `&amp;lt;top (required)&amp;gt;'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/cli.rb:41:in `main'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:138:in `start'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:194:in `_receive'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:234:in `call_with_error_handler'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:195:in `block in _receive'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:218:in `incoming_call'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;, &quot;/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/export_ruby/priv/ruby/schedule.rb:2:in `&amp;lt;top (required)&amp;gt;'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;, &quot;/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'&quot;]}
+    (erlport) /Users/scotthamilton/Projects/export_ruby/deps/erlport/src/erlport.erl:234: :erlport.call/3&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;What just happened, you ask? As I mentioned earlier, the &lt;code class=&quot;highlighter-rouge&quot;&gt;bundler&lt;/code&gt; managed paths are not loaded when ruby is started by &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; so &lt;code class=&quot;highlighter-rouge&quot;&gt;require&lt;/code&gt; fails to load &lt;code class=&quot;highlighter-rouge&quot;&gt;ice_cube&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;While pairing with a coworker of mine, &lt;a href=&quot;https://twitter.com/KronicDeth&quot;&gt;Luke Imhoff&lt;/a&gt;, we started poking around the &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; source code and found the &lt;a href=&quot;https://github.com/fazibear/export/blob/master/lib/export/ruby.ex#L51&quot;&gt;ruby option&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;## Ruby options
+    - ruby: Path to the Ruby interpreter executable
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The first thouht was to simply set the &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby:&lt;/code&gt; option to point to a bash script that used &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec&lt;/code&gt;. Long story short, it wasn’t that simple. After digging into &lt;code class=&quot;highlighter-rouge&quot;&gt;erlport&lt;/code&gt; (the erlang lib that actually does the heavy lifting), Luke found that &lt;code class=&quot;highlighter-rouge&quot;&gt;erlport&lt;/code&gt; is passing a &lt;a href=&quot;https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193&quot;&gt;series of flags&lt;/a&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;  &lt;span class=&quot;nv&quot;&gt;Path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;lists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;concat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;&quot; -e 'require &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;erlport/cli&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&quot;&lt;/span&gt;
+      &lt;span class=&quot;c&quot;&gt;% Start of script options
+&lt;/span&gt;      &lt;span class=&quot;s&quot;&gt;&quot; --&quot;&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;&quot; --packet=&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;Packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;&quot; --&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;UseStdio&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;&quot; --compressed=&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;Compressed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;&quot; --buffer_size=&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;BufferSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Putting the pieces together, we can point &lt;code class=&quot;highlighter-rouge&quot;&gt;erlport&lt;/code&gt; to a bash script that runs &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec&lt;/code&gt;, but how do we get the flags that &lt;code class=&quot;highlighter-rouge&quot;&gt;erlport&lt;/code&gt; needs to &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec&lt;/code&gt; in the bash script? As it turns out just use &lt;code class=&quot;highlighter-rouge&quot;&gt;@&lt;/code&gt; in the bash script after the &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec&lt;/code&gt;. &lt;a href=&quot;&quot;&gt;Here’s how&lt;/a&gt; it works.&lt;/p&gt;
+
+&lt;p&gt;Time to create the bash script. Remember to make it executable.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;touch priv/ruby/bundle-exec-ruby
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;chmod +x priv/ruby/bundle-exec-ruby&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Important: you want to use quotes so the white space around the flags &lt;code class=&quot;highlighter-rouge&quot;&gt;erlport&lt;/code&gt; is maintained &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;$@&quot;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# export_ruby/priv/ruby/bundle-exec-ruby&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# get the dir path relative to the bash script file&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;DIR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt; dirname &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BASH_SOURCE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[0]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# change directory and silence output so it won't error in erlport&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;pushd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$DIR&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; /dev/null 2&amp;gt;&amp;amp;1
+
+&lt;span class=&quot;c&quot;&gt;# ensure that bundler is looking for the correct Gemfile&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUNDLE_GEMFILE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$DIR&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/Gemfile&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# change PATH and Gem file vars and pass in the flags set in erlport&lt;/span&gt;
+bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;ruby &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$@&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now that the bash script is in place let’s modify the elixir code to point to the bash script.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# export_ruby/lib/schedule.ex&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ExportRuby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schedule&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Export&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# Path to ruby files relative to the project root&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;@ruby_lib&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:export_ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;priv/ruby&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# Path to ruby executable&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;@ruby_exec&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:export_ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;priv/ruby/bundle-exec-ruby&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;daily&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# passing simple data types&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;arguments&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;days&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;# Note I'm using `start_link` vs `start` as other examples show.&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Ensures the ruby process is cleaned up after parent process stops or crashes.&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# This example is not the most efficient technique as this starts and &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# stops a ruby process on EVERY function call, which works but starting and &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# stopping the process each time adds overhead.&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;ruby:&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;@ruby_exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;ruby_lib:&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;@ruby_lib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;no&quot;&gt;Ruby&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ruby&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;schedule&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;daily&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Once those changes are in place, you can recompile the source code without restarting iex.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-iex&quot; data-lang=&quot;iex&quot;&gt;iex(4)&amp;gt; c &quot;lib/schedule.ex&quot; 
+warning: redefining module ExportRuby.Schedule (current version defined in memory)
+  lib/schedule.ex:1
+
+iex(5)&amp;gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
+[&quot;2017-10-22 15:25:17 UTC&quot;, &quot;2017-10-23 15:25:17 UTC&quot;]&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Presto…you are using ruby with bundler to build a schedule via &lt;code class=&quot;highlighter-rouge&quot;&gt;ice_cube&lt;/code&gt; in your Elixir app! Sorta gives you that special kind of feeling like…&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/ash_groovy.gif&quot; alt=&quot;Army of Darkness Groovy&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In closing thoughts, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I’ll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven’t deployed the feature to production, but I just started testing locally and everything works great. As long as you’re passing simple data types, &lt;code class=&quot;highlighter-rouge&quot;&gt;export/erlport&lt;/code&gt; should be considered when you need a ruby gem but can’t find an equivalent hex package, or simply don’t have the time to write it in Elixir.&lt;/p&gt;
+
+&lt;p&gt;I hope this post helps others and saves you the many days I spent working to get &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; running in my Elixir app.&lt;/p&gt;</content><author><name>Scott Hamilton</name></author><category term="ruby" /><category term="rubygems" /><category term="elixir" /><category term="export" /><category term="erlport" /><summary type="html">Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some RubyGems that are well developed and don’t have a comparable Hex package. If you find yourself needing some functionality from a gem, but can’t find a comparable Hex package or don’t have the time write the functionality in Elixr, then Export can help.</summary></entry><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2017-09-24T11:00:54-05:00</published><updated>2017-09-24T11:00:54-05:00</updated><id>http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2017/09/24/welcome-to-jekyll.html">&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated!&lt;/p&gt;
 
 &lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
 

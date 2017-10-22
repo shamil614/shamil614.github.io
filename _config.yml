@@ -19,6 +19,8 @@ description: >- # this means to ignore newlines until "baseurl:"
   Learnings as a Sr. Software Engineer programming in Ruby and Elixir.
 
 baseurl: "/" # the subpath of your site, e.g. /blog
+disqus:
+  shortname: https-shamil614-github-io 
 url: "https://shamil614.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 author: Scott Hamilton
 google_analytics: UA-106995426-1

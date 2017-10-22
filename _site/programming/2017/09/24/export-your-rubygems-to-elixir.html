@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Export Your RubyGems to Elixir</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Scott Hamilton">
+
+<meta name="description" content="Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some Ruby..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Export Your RubyGems to Elixir">
+<meta itemprop="description" content="Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some Ruby...">
+
+  <meta itemprop="image" content="http://localhost:4000//assets/scott.jpg">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Export Your RubyGems to Elixir">
+<meta name="twitter:description" content="Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some Ruby...">
+
+
+  <meta name="twitter:creator" content="@greeneggs614">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="http://localhost:4000//assets/scott.jpg">
+  <meta property="twitter:image" content="http://localhost:4000//assets/scott.jpg">
+
+<meta property="twitter:url" content="http://localhost:4000//programming/2017/09/24/export-your-rubygems-to-elixir.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Export Your RubyGems to Elixir" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:4000//programming/2017/09/24/export-your-rubygems-to-elixir.html" />
+
+  <meta property="og:image" content="http://localhost:4000//assets/scott.jpg" />
+
+<meta property="og:description" content="Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some Ruby..." />
+<meta property="og:site_name" content="Scott Hamilton's Blog" />
+
+  <meta property="article:published_time" content="2017-09-24T11:00:54-05:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <meta property="article:tag" content="ruby">
+  
+    <meta property="article:tag" content="rubygems">
+  
+    <meta property="article:tag" content="elixir">
+  
+    <meta property="article:tag" content="export">
+  
+    <meta property="article:tag" content="erlport">
+  
+
+
+
+
+
+  
+    <meta property="article:tag" content="programming">
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir.html">
+
+    
+
+    <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Scott Hamilton&#39;s Blog</a>
+    
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about/">About Me</a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/contact.html">Contact</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Export Your RubyGems to Elixir</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2017-09-24T11:00:54-05:00" itemprop="datePublished">
+          
+          Sep 24, 2017
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Scott Hamilton</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Export Your RubyGems to Elixir</h1>
+    <p class="post-meta">
+      <time datetime="2017-09-24T11:00:54-05:00" itemprop="datePublished">
+        
+        Sep 24, 2017
+      </time>
+      </p>
+  </header> -->
+
+  <div itemprop="articleBody">
+    <p>Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some RubyGems that are well developed and don’t have a comparable Hex package. If you find yourself needing some functionality from a gem, but can’t find a comparable Hex package or don’t have the time write the functionality in Elixr, then <a href="https://github.com/fazibear/export">Export</a> can help.</p>
+
+<p>Export is just a handy wrapper around the Erlang <a href="http://erlport.org/">ErlPort</a> package. I don’t want to go into too much detail around <code class="highlighter-rouge">ErlPort</code> since there’s better resources on the topic. Basically <code class="highlighter-rouge">ErlPort</code> starts a Ruby (or Python) process which can send and receive messages via Erlang Ports.</p>
+
+<p>Alright, I can see how this might be controversial, but there’s a time and a place for everything. In my case I was working on porting over a major API endpoint over to Elixir, but coudln’t find a good subsitution for the <code class="highlighter-rouge">IceCube</code> gem.</p>
+
+<p>My first approach was to try to use Ruby to do the scheduling logic, which was already well tested in Ruby. Then send the IceCube data to the Elixir microservice (OTP Application). Long story short, I decided against that approach because it would require a good deal of rework on the Ruby side, and made it harder to port the existing logic to Elixir. Also, I discovered <code class="highlighter-rouge">Export</code> after stumbling across these blogs:</p>
+
+<ul>
+  <li><a href="https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d">Elixir, Ruby, don’t fight. Talk… with Export/Erlport</a></li>
+  <li><a href="https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d">Ruby code in Elixir project</a></li>
+</ul>
+
+<p>While those blogs are great resources to get started, there really wansn’t much there to help with how to actually use a RubGem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of ruby gem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I’ll walk through an example of how I got <code class="highlighter-rouge">export</code> to use bundler via <code class="highlighter-rouge">bundle exec</code>.</p>
+
+<p>Create a new Elixir application</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>mix new export_ruby
+<span class="nv">$ </span><span class="nb">cd </span>export_ruby</code></pre></figure>
+
+<p>Add Export as a dependency</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># mix.exs</span>
+
+<span class="k">defp</span> <span class="n">deps</span> <span class="k">do</span>
+  <span class="p">[</span>
+    <span class="p">{</span><span class="ss">:export</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.1.0"</span><span class="p">}</span>
+  <span class="p">]</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Fetch dependencies</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>mix deps.get</code></pre></figure>
+
+<p>Create a directory for the ruby code to live in. <code class="highlighter-rouge">priv</code> is ideal since it’s included in the compilation process by default.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>mkdir <span class="nt">-p</span> priv/ruby</code></pre></figure>
+
+<p>The steps above are standard affair, and resemble those other blog posts. This is the part where I start to diverge.</p>
+
+<p>Let’s say you need to use the <code class="highlighter-rouge">IceCube</code> gem like I did. Since <code class="highlighter-rouge">priv/ruby</code> is where all the ruby goodness goes…let’s create a <code class="highlighter-rouge">Gemfile</code> for <code class="highlighter-rouge">bundler</code>.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span><span class="nb">cd </span>priv/ruby
+<span class="nv">$ </span>gem install bundler
+<span class="nv">$ </span>bundler init</code></pre></figure>
+
+<p>After adding <code class="highlighter-rouge">IceCube</code> and <code class="highlighter-rouge">ActiveSupport</code> to the Gemfile bundler created it looks like what I have below. Note: I added <code class="highlighter-rouge">ActiveSupport</code> because of the utilities it provides in parsing Dates and Times.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># export_ruby/priv/ruby/Gemfile</span>
+<span class="c1"># frozen_string_literal: true</span>
+<span class="n">source</span> <span class="s2">"https://rubygems.org"</span>
+
+<span class="n">git_source</span><span class="p">(</span><span class="ss">:github</span><span class="p">)</span> <span class="p">{</span><span class="o">|</span><span class="n">repo_name</span><span class="o">|</span> <span class="s2">"https://github.com/</span><span class="si">#{</span><span class="n">repo_name</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
+
+<span class="c1"># Needed for Date Time extensions</span>
+<span class="n">gem</span> <span class="s2">"activesupport"</span><span class="p">,</span> <span class="s2">"4.2.9"</span>
+
+<span class="c1"># handles repeated events / schedules.</span>
+<span class="n">gem</span> <span class="s2">"ice_cube"</span><span class="p">,</span> <span class="ss">git: </span><span class="s2">"https://github.com/seejohnrun/ice_cube.git"</span><span class="p">,</span> <span class="ss">ref: </span><span class="s2">"full_tz"</span></code></pre></figure>
+
+<p>Your terminal shell should already be in <code class="highlighter-rouge">export_ruby/priv/ruby</code> then we need to get the gems.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>bundle install</code></pre></figure>
+
+<p>Note that I’m using a specific branch of <code class="highlighter-rouge">IceCube</code> that is fetched from Github via bundler. At the time of this writing, we needed full timezone support and the changes needed were not yet in a released version.</p>
+
+<p>Now it’s time to get coding. We’re going to build a <code class="highlighter-rouge">IceCube::Schedule</code> to get series of dates and times. That means we need a ruby file to execute the <code class="highlighter-rouge">IceCube</code> code.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># export_ruby/priv/ruby/schedule.rb</span>
+
+<span class="c1"># frozen_string_literal: true</span>
+
+<span class="nb">require</span> <span class="s2">"ice_cube"</span>
+<span class="nb">require</span> <span class="s2">"active_support/time"</span>
+
+<span class="k">def</span> <span class="nf">daily</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">days</span><span class="p">)</span>
+  <span class="c1"># time should be a string. needs to be a Time/DateTime object for IceCube.</span>
+  <span class="n">start_time</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+
+  <span class="n">schedule</span> <span class="o">=</span> <span class="no">IceCube</span><span class="o">::</span><span class="no">Schedule</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+    <span class="n">s</span><span class="p">.</span><span class="nf">add_recurrence_rule</span><span class="p">(</span><span class="no">IceCube</span><span class="o">::</span><span class="no">Rule</span><span class="p">.</span><span class="nf">daily</span><span class="p">.</span><span class="nf">count</span><span class="p">(</span><span class="n">days</span><span class="p">))</span>
+  <span class="k">end</span>
+
+  <span class="c1"># complex objects don't serialize well via ports. </span>
+  <span class="c1"># best to use simple objects (strings, integers, etc).</span>
+  <span class="n">schedule</span><span class="p">.</span><span class="nf">all_occurrences</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_s</span><span class="p">)</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>While in the <code class="highlighter-rouge">export_ruby/priv/ruby</code> directory, use bundler to install the gem dependencies.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>bundle install
+Using i18n 0.8.6
+Using minitest 5.10.3
+Using thread_safe 0.3.6
+Using bundler 1.15.4
+Using ice_cube 0.16.2 from https://github.com/seejohnrun/ice_cube.git <span class="o">(</span>at full_tz@10ed1e4<span class="o">)</span>
+Using tzinfo 1.2.3
+Using activesupport 4.2.9</code></pre></figure>
+
+<p>You should see <code class="highlighter-rouge">ice_cube</code> installed with <code class="highlighter-rouge">bundle list</code>, but not when you run <code class="highlighter-rouge">gem list</code>. This is an important distinction. That’s because bundler is managing the dependency from Github, and the gem install installed in a different path from the system gems.</p>
+
+<p>Since this is an Elixir application, we need Elixir code to call the Ruby code.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># export_ruby/lib/schedule.ex</span>
+
+<span class="k">defmodule</span> <span class="no">ExportRuby</span><span class="o">.</span><span class="no">Schedule</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Export</span><span class="o">.</span><span class="no">Ruby</span>
+
+  <span class="c1"># Path to ruby files relative to the project root</span>
+  <span class="nv">@ruby_lib</span> <span class="no">Application</span><span class="o">.</span><span class="n">app_dir</span><span class="p">(</span><span class="ss">:export_ruby</span><span class="p">,</span> <span class="sd">"</span><span class="s2">priv/ruby"</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="n">daily</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">days</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># passing simple data types</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_string</span><span class="p">(</span><span class="n">start_time</span><span class="p">),</span> <span class="n">days</span><span class="p">]</span>
+
+    <span class="c1"># Note I'm using `start_link` vs `start` as other examples show.</span>
+    <span class="c1"># Ensures the ruby process is cleaned up after parent process stops or crashes.</span>
+    <span class="c1"># This example is not the most efficient technique as this starts and </span>
+    <span class="c1"># stops a ruby process on EVERY function call, which works but starting and </span>
+    <span class="c1"># stopping the process each time adds overhead.</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">ruby</span><span class="p">}</span> <span class="o">=</span> <span class="no">Ruby</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="ss">ruby_lib:</span> <span class="nv">@ruby_lib</span><span class="p">)</span>
+
+    <span class="no">Ruby</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">ruby</span><span class="p">,</span> <span class="sd">"</span><span class="s2">schedule"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">daily"</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Now that all the parts are setup, let’s give it a try. Remember to pass <code class="highlighter-rouge">-S mix</code> to iex.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>iex <span class="nt">-S</span> mix</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-iex" data-lang="iex">iex(1)&gt; start_time = DateTime.utc_now
+
+iex(2)&gt; ExportRuby.Schedule.daily(start_time, 2)
+  
+iex(3)&gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
+** (ErlangError) erlang error: {:ruby, :LoadError, "cannot load such file -- ice_cube", ["-e:1:in `&lt;main&gt;'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/cli.rb:94:in `&lt;top (required)&gt;'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/cli.rb:41:in `main'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:138:in `start'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:194:in `_receive'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:234:in `call_with_error_handler'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:195:in `block in _receive'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/erlport/priv/ruby1.9/erlport/erlang.rb:218:in `incoming_call'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'", "/Users/scotthamilton/Projects/export_ruby/_build/dev/lib/export_ruby/priv/ruby/schedule.rb:2:in `&lt;top (required)&gt;'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'", "/Users/scotthamilton/.rvm/rubies/ruby-2.4.1/lib/ruby/site_ruby/2.4.0/rubygems/core_ext/kernel_require.rb:55:in `require'"]}
+    (erlport) /Users/scotthamilton/Projects/export_ruby/deps/erlport/src/erlport.erl:234: :erlport.call/3</code></pre></figure>
+
+<p>What just happened, you ask? As I mentioned earlier, the <code class="highlighter-rouge">bundler</code> managed paths are not loaded when ruby is started by <code class="highlighter-rouge">export</code> so <code class="highlighter-rouge">require</code> fails to load <code class="highlighter-rouge">ice_cube</code>.</p>
+
+<p>While pairing with a coworker of mine, <a href="https://twitter.com/KronicDeth">Luke Imhoff</a>, we started poking around the <code class="highlighter-rouge">export</code> source code and found the <a href="https://github.com/fazibear/export/blob/master/lib/export/ruby.ex#L51">ruby option</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Ruby options
+    - ruby: Path to the Ruby interpreter executable
+</code></pre></div></div>
+
+<p>The first thouht was to simply set the <code class="highlighter-rouge">ruby:</code> option to point to a bash script that used <code class="highlighter-rouge">bundle exec</code>. Long story short, it wasn’t that simple. After digging into <code class="highlighter-rouge">erlport</code> (the erlang lib that actually does the heavy lifting), Luke found that <code class="highlighter-rouge">erlport</code> is passing a <a href="https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193">series of flags</a> to <code class="highlighter-rouge">ruby</code>.</p>
+
+<figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">  <span class="nv">Path</span> <span class="o">=</span> <span class="nn">lists</span><span class="p">:</span><span class="nf">concat</span><span class="p">([</span><span class="nv">Ruby</span><span class="p">,</span>
+      <span class="s">" -e 'require </span><span class="se">\"</span><span class="s">erlport/cli</span><span class="se">\"</span><span class="s">'"</span>
+      <span class="c">% Start of script options
+</span>      <span class="s">" --"</span>
+      <span class="s">" --packet="</span><span class="p">,</span> <span class="nv">Packet</span><span class="p">,</span>
+      <span class="s">" --"</span><span class="p">,</span> <span class="nv">UseStdio</span><span class="p">,</span>
+      <span class="s">" --compressed="</span><span class="p">,</span> <span class="nv">Compressed</span><span class="p">,</span>
+      <span class="s">" --buffer_size="</span><span class="p">,</span> <span class="nv">BufferSize</span><span class="p">]),</span></code></pre></figure>
+
+<p>Putting the pieces together, we can point <code class="highlighter-rouge">erlport</code> to a bash script that runs <code class="highlighter-rouge">bundle exec</code>, but how do we get the flags that <code class="highlighter-rouge">erlport</code> needs to <code class="highlighter-rouge">bundle exec</code> in the bash script? As it turns out just use <code class="highlighter-rouge">@</code> in the bash script after the <code class="highlighter-rouge">bundle exec</code>. <a href="">Here’s how</a> it works.</p>
+
+<p>Time to create the bash script. Remember to make it executable.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>touch priv/ruby/bundle-exec-ruby
+<span class="nv">$ </span>chmod +x priv/ruby/bundle-exec-ruby</code></pre></figure>
+
+<p>Important: you want to use quotes so the white space around the flags <code class="highlighter-rouge">erlport</code> is maintained <code class="highlighter-rouge">"$@"</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># export_ruby/priv/ruby/bundle-exec-ruby</span>
+
+<span class="c">#!/bin/bash</span>
+<span class="c"># get the dir path relative to the bash script file</span>
+<span class="nv">DIR</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span> <span class="nb">cd</span> <span class="s2">"</span><span class="k">$(</span> dirname <span class="s2">"</span><span class="k">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="k">}</span><span class="s2">"</span> <span class="k">)</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="nb">pwd</span> <span class="k">)</span><span class="s2">"</span>
+
+<span class="c"># change directory and silence output so it won't error in erlport</span>
+<span class="nb">pushd</span> <span class="nv">$DIR</span> <span class="o">&gt;</span> /dev/null 2&gt;&amp;1
+
+<span class="c"># ensure that bundler is looking for the correct Gemfile</span>
+<span class="nb">export </span><span class="nv">BUNDLE_GEMFILE</span><span class="o">=</span><span class="nv">$DIR</span><span class="s2">"/Gemfile"</span>
+
+<span class="c"># change PATH and Gem file vars and pass in the flags set in erlport</span>
+bundle <span class="nb">exec </span>ruby <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span></code></pre></figure>
+
+<p>Now that the bash script is in place let’s modify the elixir code to point to the bash script.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># export_ruby/lib/schedule.ex</span>
+
+<span class="k">defmodule</span> <span class="no">ExportRuby</span><span class="o">.</span><span class="no">Schedule</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Export</span><span class="o">.</span><span class="no">Ruby</span>
+
+  <span class="c1"># Path to ruby files relative to the project root</span>
+  <span class="nv">@ruby_lib</span> <span class="no">Application</span><span class="o">.</span><span class="n">app_dir</span><span class="p">(</span><span class="ss">:export_ruby</span><span class="p">,</span> <span class="sd">"</span><span class="s2">priv/ruby"</span><span class="p">)</span>
+  <span class="c1"># Path to ruby executable</span>
+  <span class="nv">@ruby_exec</span> <span class="no">Application</span><span class="o">.</span><span class="n">app_dir</span><span class="p">(</span><span class="ss">:export_ruby</span><span class="p">,</span> <span class="sd">"</span><span class="s2">priv/ruby/bundle-exec-ruby"</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="n">daily</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">days</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># passing simple data types</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_string</span><span class="p">(</span><span class="n">start_time</span><span class="p">),</span> <span class="n">days</span><span class="p">]</span>
+
+    <span class="c1"># Note I'm using `start_link` vs `start` as other examples show.</span>
+    <span class="c1"># Ensures the ruby process is cleaned up after parent process stops or crashes.</span>
+    <span class="c1"># This example is not the most efficient technique as this starts and </span>
+    <span class="c1"># stops a ruby process on EVERY function call, which works but starting and </span>
+    <span class="c1"># stopping the process each time adds overhead.</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">ruby</span><span class="p">}</span> <span class="o">=</span> <span class="no">Ruby</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="ss">ruby:</span> <span class="nv">@ruby_exec</span><span class="p">,</span> <span class="ss">ruby_lib:</span> <span class="nv">@ruby_lib</span><span class="p">)</span>
+
+    <span class="no">Ruby</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">ruby</span><span class="p">,</span> <span class="sd">"</span><span class="s2">schedule"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">daily"</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Once those changes are in place, you can recompile the source code without restarting iex.</p>
+
+<figure class="highlight"><pre><code class="language-iex" data-lang="iex">iex(4)&gt; c "lib/schedule.ex" 
+warning: redefining module ExportRuby.Schedule (current version defined in memory)
+  lib/schedule.ex:1
+
+iex(5)&gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
+["2017-10-22 15:25:17 UTC", "2017-10-23 15:25:17 UTC"]</code></pre></figure>
+
+<p>Presto…you are using ruby with bundler to build a schedule via <code class="highlighter-rouge">ice_cube</code> in your Elixir app! Sorta gives you that special kind of feeling like…</p>
+
+<p><img src="/assets/ash_groovy.gif" alt="Army of Darkness Groovy" /></p>
+
+<p>In closing thoughts, if you want to maximize speed you need to make sure to use a Supervisor to keep the ruby process running instead of starting and stopping on every call. I’ll write another shorter post on how I setup a Supervisor and include some benchmarks. At the time of writing this post, we haven’t deployed the feature to production, but I just started testing locally and everything works great. As long as you’re passing simple data types, <code class="highlighter-rouge">export/erlport</code> should be considered when you need a ruby gem but can’t find an equivalent hex package, or simply don’t have the time to write it in Elixir.</p>
+
+<p>I hope this post helps others and saves you the many days I spent working to get <code class="highlighter-rouge">export</code> running in my Elixir app.</p>
+
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+ /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+ /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+  */
+ (function() { // DON'T EDIT BELOW THIS LINE
+     var d = document, s = d.createElement('script');
+     s.src = 'https://https-shamil614-github-io.disqus.com/embed.js';
+     s.setAttribute('data-timestamp', +new Date());
+     (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+
+      <footer class="site-footer">
+        <!-- SVG icons from https://iconmonstr.com -->
+
+        <!-- Github icon -->
+        <span class="my-span-icon">
+          <a href="https://github.com/shamil614" aria-label="shamil614's GitHub" title="shamil614's GitHub">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+        </span>
+
+        <!-- Twitter icon -->
+        <span class="my-span-icon">
+          <a href="https://twitter.com/greeneggs614" aria-label="shamil614's Twitter" title="shamil614's Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about/" aria-label="Contact" title="Contact shamil614">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+
+      </footer>
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-106995426-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>
