@@ -17,7 +17,7 @@ My first approach was to try to use Ruby to do the scheduling logic, which was a
 * [Elixir, Ruby, don’t fight. Talk… with Export/Erlport](https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d)
 * [Ruby code in Elixir project](https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d)
  
-While those blogs are great resources to get started, there really wansn't much there to help with how to actually use a RubGem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of ruby gem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I'll walk through an example of how I got `export` to use bundler via `bundle exec`.
+While those blogs are great resources to get started, there really wasn't much there to help with how to actually use a Rubygem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of Rubygem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I'll walk through an example of how I got `export` to use bundler via `bundle exec`.
 
 Create a new Elixir application
 
@@ -177,7 +177,7 @@ While pairing with a coworker of mine, [Luke Imhoff](https://twitter.com/KronicD
     - ruby: Path to the Ruby interpreter executable
 ```
 
-The first thouht was to simply set the `ruby:` option to point to a bash script that used `bundle exec`. Long story short, it wasn't that simple. After digging into `erlport` (the erlang lib that actually does the heavy lifting), Luke found that `erlport` is passing a [series of flags](https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193) to `ruby`.
+The first thought was to simply set the `ruby:` option to point to a bash script that used `bundle exec`. Long story short, it wasn't that simple. After digging into `erlport` (the erlang lib that actually does the heavy lifting), Luke found that `erlport` is passing a [series of flags](https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193) to `ruby`.
 
 
 {% highlight erlang %}

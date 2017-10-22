@@ -240,7 +240,7 @@
   <li><a href="https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d">Ruby code in Elixir project</a></li>
 </ul>
 
-<p>While those blogs are great resources to get started, there really wansn’t much there to help with how to actually use a RubGem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of ruby gem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I’ll walk through an example of how I got <code class="highlighter-rouge">export</code> to use bundler via <code class="highlighter-rouge">bundle exec</code>.</p>
+<p>While those blogs are great resources to get started, there really wasn’t much there to help with how to actually use a Rubygem, bundler, Gemfile, etc. Bundler is pretty much an essential tool of Rubygem management. Almost every host/deployment strategy uses bundler, and my situation was no exception. In the rest of this post, I’ll walk through an example of how I got <code class="highlighter-rouge">export</code> to use bundler via <code class="highlighter-rouge">bundle exec</code>.</p>
 
 <p>Create a new Elixir application</p>
 
@@ -373,7 +373,7 @@ iex(3)&gt; ExportRuby.Schedule.daily(DateTime.utc_now, 2)
     - ruby: Path to the Ruby interpreter executable
 </code></pre></div></div>
 
-<p>The first thouht was to simply set the <code class="highlighter-rouge">ruby:</code> option to point to a bash script that used <code class="highlighter-rouge">bundle exec</code>. Long story short, it wasn’t that simple. After digging into <code class="highlighter-rouge">erlport</code> (the erlang lib that actually does the heavy lifting), Luke found that <code class="highlighter-rouge">erlport</code> is passing a <a href="https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193">series of flags</a> to <code class="highlighter-rouge">ruby</code>.</p>
+<p>The first thought was to simply set the <code class="highlighter-rouge">ruby:</code> option to point to a bash script that used <code class="highlighter-rouge">bundle exec</code>. Long story short, it wasn’t that simple. After digging into <code class="highlighter-rouge">erlport</code> (the erlang lib that actually does the heavy lifting), Luke found that <code class="highlighter-rouge">erlport</code> is passing a <a href="https://github.com/hdima/erlport/blob/master/src/ruby.erl#L187-L193">series of flags</a> to <code class="highlighter-rouge">ruby</code>.</p>
 
 <figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">  <span class="nv">Path</span> <span class="o">=</span> <span class="nn">lists</span><span class="p">:</span><span class="nf">concat</span><span class="p">([</span><span class="nv">Ruby</span><span class="p">,</span>
       <span class="s">" -e 'require </span><span class="se">\"</span><span class="s">erlport/cli</span><span class="se">\"</span><span class="s">'"</span>
