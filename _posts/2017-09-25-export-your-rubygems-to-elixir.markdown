@@ -10,7 +10,7 @@ Ruby in Elixir?! Yes, that's right you can have the best of both worlds. The Eli
 
 Export is just a handy wrapper around the Erlang [ErlPort](http://erlport.org/) package. I don't want to go into too much detail around `ErlPort` since there's better resources on the topic. Basically `ErlPort` starts a Ruby (or Python) process which can send and receive messages via Erlang Ports.
 
-Alright, I can see how this might be controversial, but there's a time and a place for everything. In my case I was working on porting over a major API endpoint over to Elixir, but coudln't find a good subsitution for the `IceCube` gem. 
+Alright, I can see how this might be controversial, but there's a time and a place for everything. In my case I was working on porting over a major API endpoint over to Elixir, but couldn't find a good substitution for the `IceCube` gem. 
 
 My first approach was to try to use Ruby to do the scheduling logic; which was already well tested in Ruby, then send the IceCube data to the Elixir microservice (OTP Application). Long story short, I decided against that approach because it would require a good deal of rework on the Ruby side, and made it harder to port the existing logic to Elixir. Also, I discovered `Export` after stumbling across these blogs:
 
@@ -85,7 +85,9 @@ $ bundle install
 Note that I'm using a specific branch of `IceCube` that is fetched from Github via bundler. At the time of this writing, we needed full timezone support and the changes needed were not yet in a released version.
 
 
-Now it's time to get coding. We're going to build a `IceCube::Schedule` to get series of dates and times. That means we need a ruby file to execute the `IceCube` code.
+Now it's time to get coding. We're going to build a `IceCube::Schedule` to get series of dates and times. That means we need a ruby}
+
+ file to execute the `IceCube` code.
 
 {% highlight ruby %}
 # export_ruby/priv/ruby/schedule.rb
