@@ -12,7 +12,7 @@ Export is just a handy wrapper around the Erlang [ErlPort](http://erlport.org/) 
 
 Alright, I can see how this might be controversial, but there's a time and a place for everything. In my case I was working on porting over a major API endpoint over to Elixir, but coudln't find a good subsitution for the `IceCube` gem. 
 
-My first approach was to try to use Ruby to do the scheduling logic, which was already well tested in Ruby. Then send the IceCube data to the Elixir microservice (OTP Application). Long story short, I decided against that approach because it would require a good deal of rework on the Ruby side, and made it harder to port the existing logic to Elixir. Also, I discovered `Export` after stumbling across these blogs:
+My first approach was to try to use Ruby to do the scheduling logic; which was already well tested in Ruby, then send the IceCube data to the Elixir microservice (OTP Application). Long story short, I decided against that approach because it would require a good deal of rework on the Ruby side, and made it harder to port the existing logic to Elixir. Also, I discovered `Export` after stumbling across these blogs:
 
 * [Elixir, Ruby, don’t fight. Talk… with Export/Erlport](https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d)
 * [Ruby code in Elixir project](https://medium.com/@Stephanbv/ruby-code-in-elixir-project-97614a9543d)
