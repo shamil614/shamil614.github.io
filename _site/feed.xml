@@ -1,4 +1,225 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-10-23T10:52:48-05:00</updated><id>http://localhost:4000/</id><title type="html">Scott Hamilton’s Blog</title><subtitle>Learnings as a Sr. Software Engineer programming in Ruby and Elixir.</subtitle><author><name>Scott Hamilton</name></author><entry><title type="html">Export Your RubyGems to Elixir</title><link href="http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir.html" rel="alternate" type="text/html" title="Export Your RubyGems to Elixir" /><published>2017-09-24T11:00:54-05:00</published><updated>2017-09-24T11:00:54-05:00</updated><id>http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir</id><content type="html" xml:base="http://localhost:4000/programming/2017/09/24/export-your-rubygems-to-elixir.html">&lt;p&gt;Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some RubyGems that are well developed and don’t have a comparable Hex package. If you find yourself needing some functionality from a gem, but can’t find a comparable Hex package or don’t have the time write the functionality in Elixr, then &lt;a href=&quot;https://github.com/fazibear/export&quot;&gt;Export&lt;/a&gt; can help.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.0">Jekyll</generator><link href="https://shamil614.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://shamil614.github.io/" rel="alternate" type="text/html" /><updated>2019-05-05T18:25:49-05:00</updated><id>https://shamil614.github.io/</id><title type="html">Scott Hamilton’s Blog</title><subtitle>Learnings as a Sr. Software Engineer programming in Ruby and Elixir.</subtitle><author><name>Scott Hamilton</name></author><entry><title type="html">Authentication and Authorization with GraphQL, Elixir and Absinthe</title><link href="https://shamil614.github.io/programming/2019/05/05/authentication_and_authorization_with_graphql.html" rel="alternate" type="text/html" title="Authentication and Authorization with GraphQL, Elixir and Absinthe" /><published>2019-05-05T12:00:54-05:00</published><updated>2019-05-05T12:00:54-05:00</updated><id>https://shamil614.github.io/programming/2019/05/05/authentication_and_authorization_with_graphql</id><content type="html" xml:base="https://shamil614.github.io/programming/2019/05/05/authentication_and_authorization_with_graphql.html">&lt;p&gt;For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are appealing. I won’t go into the REST vs GraphQL debate on this post because that’s a post all of it’s own.&lt;/p&gt;
+
+&lt;p&gt;In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiences for computing resources and developers.&lt;/p&gt;
+
+&lt;p&gt;A little while ago our developer team kicked around the idea of adopting a GraphQL api. During that time I started to research more about GraphQL. While there are many posts covering GraphQL, I didn’t find a lot on Authentication, and Authorization patterns. In this post I will cover what I learned about Authentication / Authorization with Absinthe and GraphQL.&lt;/p&gt;
+
+&lt;h2 id=&quot;overview&quot;&gt;Overview&lt;/h2&gt;
+
+&lt;p&gt;In order to implement a GraphQL api, the spec must be followed. The easiest way to build out a GraphQL api in Elixir is to use the well featured &lt;a href=&quot;https://github.com/absinthe-graphql/absinthe&quot;&gt;Absinthe library&lt;/a&gt;. While we could use Absinthe alone, it’s best to use &lt;a href=&quot;https://github.com/absinthe-graphql/absinthe_plug&quot;&gt;Absinthe Plug&lt;/a&gt; since it allows for the integration of GraphQL into a http api pipeline via &lt;code class=&quot;highlighter-rouge&quot;&gt;Plug&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;absinthe_plug&lt;/code&gt; requires Absinthe as a dependency. I won’t be able to cover everything. Otherwise this post would have too much information. &lt;a href=&quot;https://github.com/shamil614/graphql_blog/tree/auth&quot;&gt;View the full code&lt;/a&gt; to see all the details.&lt;/p&gt;
+
+&lt;h2 id=&quot;authentication&quot;&gt;Authentication&lt;/h2&gt;
+
+&lt;p&gt;As far as I can tell the GraphQL spec doesn’t outline any requriements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here’s how I went about adding Authentication:&lt;/p&gt;
+
+&lt;p&gt;Add &lt;code class=&quot;highlighter-rouge&quot;&gt;absinthe_plug&lt;/code&gt; to your deps&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;  &lt;span class=&quot;k&quot;&gt;defp&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;deps&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:absinthe_plug&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;~&amp;gt; 1.4&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:phoenix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;~&amp;gt; 1.4.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;....&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Setup the router to handle api requests and setup the GraphiQL utility.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog_web/router.ex&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Router&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:router&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;pipeline&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:api&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;plug&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:accepts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;json&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;plug&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Plugs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Context&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;scope&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/api&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pipe_through&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:api&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;forward&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/graphiql&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Absinthe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Plug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;GraphiQL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;ss&quot;&gt;schema:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schema&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;ss&quot;&gt;json_codec:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Phoenix&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json_library&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;forward&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Absinthe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Plug&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;schema:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schema&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Make sure to install the new deps &lt;code class=&quot;highlighter-rouge&quot;&gt;mix deps.get&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now a Plug can be created to read the HTTP Authentication header, look up the User, and pass the &lt;code class=&quot;highlighter-rouge&quot;&gt;current_user&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;Absinthe.run&lt;/code&gt; via &lt;code class=&quot;highlighter-rouge&quot;&gt;context&lt;/code&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;options&lt;/code&gt; (&lt;a href=&quot;https://hexdocs.pm/absinthe/Absinthe.html#run/3-options&quot;&gt;see docs&lt;/a&gt;).&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog_web/plugs/contex.ex&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Plugs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Context&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;@behaviour&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Plug&lt;/span&gt;
+
+  &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Plug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Conn&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Ecto&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;only:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;where:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Repo&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Accounts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;build_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Absinthe.Plug calls Absinthe.run() with the options added to the `conn`.&lt;/span&gt;
+    &lt;span class=&quot;no&quot;&gt;Absinthe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Plug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;put_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;context:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;nv&quot;&gt;@doc&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&quot;&quot;
+  Return the current user context based on the authorization header
+  &quot;&quot;&quot;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;build_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Bearer &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_req_header&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;authorization&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+         &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;current_user:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# Note this is a simple token auth strategy. This is should not be used in production.&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;defp&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;|&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;where&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;token:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;|&amp;gt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Repo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;|&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+      &lt;span class=&quot;no&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;invalid authorization token&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Since &lt;code class=&quot;highlighter-rouge&quot;&gt;Absinthe.run&lt;/code&gt; passes along the &lt;code class=&quot;highlighter-rouge&quot;&gt;context&lt;/code&gt;, the &lt;code class=&quot;highlighter-rouge&quot;&gt;resolvers&lt;/code&gt; can handle an authenticated / unauthenticated request. The &lt;code class=&quot;highlighter-rouge&quot;&gt;schema.ex&lt;/code&gt; file defines the &lt;code class=&quot;highlighter-rouge&quot;&gt;query&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;posts&lt;/code&gt;, and defines a &lt;code class=&quot;highlighter-rouge&quot;&gt;resolver&lt;/code&gt; for the request.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog_web/schema&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;@desc&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Get all posts&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:posts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# the third argument passed is the `context` set via `plug`&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Resolvers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list_posts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+  &lt;span class=&quot;o&quot;&gt;....&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog_web/resolvers/content.ex&lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;@doc&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&quot;&quot;
+Resolve Posts associated to a User, posts independent of a User and Unauthorized Users
+&quot;&quot;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_posts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(%&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;context:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;current_user:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}})&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list_posts_by_author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_posts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;context:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;current_user:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}})&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list_posts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_posts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Access denied&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;By matching on the context map with a &lt;code class=&quot;highlighter-rouge&quot;&gt;current_user&lt;/code&gt; key, the authenticated user is accounted for. The last head matches for unauthenticated users.&lt;/p&gt;
+
+&lt;p&gt;Now with graphiql the Authorization Header can easily be passed in the api call. Navigate to &lt;code class=&quot;highlighter-rouge&quot;&gt;localhost:4000/api/graphiql&lt;/code&gt; then under the &lt;code class=&quot;highlighter-rouge&quot;&gt;Headers&lt;/code&gt; section click &lt;code class=&quot;highlighter-rouge&quot;&gt;Add&lt;/code&gt;. There you can enter a fake token to correspond to a particular user with a value of &lt;code class=&quot;highlighter-rouge&quot;&gt;Bearer &amp;lt;Some-Token-Matching-A-User&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/graphql_auth/graphiql_add_header.png&quot; alt=&quot;Add Header via graphiql&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here’s an example query with a valid Authorization token.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/graphql_auth/graphiql_auth.png&quot; alt=&quot;Valid Token request&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Remove the header and make the same request.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/graphql_auth/graphiql_unauth.png&quot; alt=&quot;Invalid Token request&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that no posts are returned and the payload included an &lt;code class=&quot;highlighter-rouge&quot;&gt;errors&lt;/code&gt; JSON object.&lt;/p&gt;
+
+&lt;h2 id=&quot;authorization&quot;&gt;Authorization&lt;/h2&gt;
+
+&lt;p&gt;Authorization is not explicitly covered in the GraphQL spec, it is covered in the &lt;a href=&quot;https://graphql.github.io/learn/authorization/&quot;&gt;Learn&lt;/a&gt; section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.&lt;/p&gt;
+
+&lt;p&gt;In my sample code the User schema has a &lt;code class=&quot;highlighter-rouge&quot;&gt;role&lt;/code&gt; attribute. The code has seeds to create a &lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; and a &lt;code class=&quot;highlighter-rouge&quot;&gt;consumer&lt;/code&gt; User. The Post schema has an attribute called &lt;code class=&quot;highlighter-rouge&quot;&gt;private_notes&lt;/code&gt; that only Users with a role of &lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; can view.&lt;/p&gt;
+
+&lt;p&gt;The hook for authorizing a specific field can be implemented via the &lt;code class=&quot;highlighter-rouge&quot;&gt;post&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;content type&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog_web/schema/content_types.ex&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schema&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ContentTypes&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Absinthe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Schema&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Notation&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Resolvers&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:post&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:id&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:string&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:string&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:user&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:published_at&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:naive_datetime&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:private_notes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:string&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;no&quot;&gt;Resolvers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:private_notes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The resolver then delegates to the business layer&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;k&quot;&gt;defmodule&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BlogWeb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Resolvers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Accounts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;alias&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Post&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;context:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;current_user:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}})&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;no&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Not authorized for field&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+  &lt;span class=&quot;o&quot;&gt;.....&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Blog.Content&lt;/code&gt; is where the business layer logic processes the authorization logic.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-elixir&quot; data-lang=&quot;elixir&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# lib/blog/content.ex&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:private_notes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;role:&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;admin&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:private_notes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;authorize_post_field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:private_notes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{})&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sd&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Field not authorized&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The first function matches on the &lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; User role which then returns a &lt;code class=&quot;highlighter-rouge&quot;&gt;{:ok, &amp;lt;val&amp;gt;}&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; users. The second function matches for any other user role which returns a &lt;code class=&quot;highlighter-rouge&quot;&gt;{:error, &amp;lt;message&amp;gt;}&lt;/code&gt; tuple preventing the access of the &lt;code class=&quot;highlighter-rouge&quot;&gt;private_notes&lt;/code&gt; field.&lt;/p&gt;
+
+&lt;p&gt;Here’s an example query via GraphiQL.&lt;/p&gt;
+
+&lt;p&gt;First set a token that belongs to a Admin User.
+&lt;img src=&quot;/assets/images/graphql_auth/graphiql_admin_token.png&quot; alt=&quot;Admin token set&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Below is an example query requesting privates notes.
+&lt;img src=&quot;/assets/images/graphql_auth/graphiql_admin_private_notes.png&quot; alt=&quot;Admin requests private notes&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that private notes are returned in the response.&lt;/p&gt;
+
+&lt;p&gt;Now let’s test what happens for a &lt;code class=&quot;highlighter-rouge&quot;&gt;consumer&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Set a token belonging to a Consumer User.
+&lt;img src=&quot;/assets/images/graphql_auth/graphiql_consumer_token.png&quot; alt=&quot;Consumer token set&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Below is the request for &lt;code class=&quot;highlighter-rouge&quot;&gt;private_notes&lt;/code&gt; by a &lt;code class=&quot;highlighter-rouge&quot;&gt;consumer&lt;/code&gt;.
+&lt;img src=&quot;/assets/images/graphql_auth/graphiql_consumer_private_notes.png&quot; alt=&quot;Consumer requests private notes&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The result shows the proper error message define in the business layer module.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;Exploring GraphQL and Absinthe provided great insights into the spec, and implementation options available. I’m very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.&lt;/p&gt;</content><author><name>Scott Hamilton</name></author><category term="elixir" /><category term="graphql" /><category term="absinthe" /><category term="authorization" /><category term="authentication" /><category term="phoenix" /><summary type="html">For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are appealing. I won’t go into the REST vs GraphQL debate on this post because that’s a post all of it’s own.</summary></entry><entry><title type="html">Export Your RubyGems to Elixir</title><link href="https://shamil614.github.io/programming/2017/09/24/export-your-rubygems-to-elixir.html" rel="alternate" type="text/html" title="Export Your RubyGems to Elixir" /><published>2017-09-24T11:00:54-05:00</published><updated>2017-09-24T11:00:54-05:00</updated><id>https://shamil614.github.io/programming/2017/09/24/export-your-rubygems-to-elixir</id><content type="html" xml:base="https://shamil614.github.io/programming/2017/09/24/export-your-rubygems-to-elixir.html">&lt;p&gt;Ruby in Elixir?! Yes, that’s right you can have the best of both worlds. The Elixir ecosystem is growing by leaps and bounds, but there are some RubyGems that are well developed and don’t have a comparable Hex package. If you find yourself needing some functionality from a gem, but can’t find a comparable Hex package or don’t have the time write the functionality in Elixr, then &lt;a href=&quot;https://github.com/fazibear/export&quot;&gt;Export&lt;/a&gt; can help.&lt;/p&gt;
 
 &lt;p&gt;Export is just a handy wrapper around the Erlang &lt;a href=&quot;http://erlport.org/&quot;&gt;ErlPort&lt;/a&gt; package. I don’t want to go into too much detail around &lt;code class=&quot;highlighter-rouge&quot;&gt;ErlPort&lt;/code&gt; since there’s better resources on the topic. Basically &lt;code class=&quot;highlighter-rouge&quot;&gt;ErlPort&lt;/code&gt; starts a Ruby (or Python) process which can send and receive messages via Erlang Ports.&lt;/p&gt;
 

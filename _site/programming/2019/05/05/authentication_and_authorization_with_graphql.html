@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Authentication and Authorization with GraphQL, Elixir and Absinthe</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Scott Hamilton">
+
+<meta name="description" content="For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are ap..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Authentication and Authorization with GraphQL, Elixir and Absinthe">
+<meta itemprop="description" content="For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are ap...">
+
+  <meta itemprop="image" content="https://shamil614.github.io//assets/scott.jpg">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Authentication and Authorization with GraphQL, Elixir and Absinthe">
+<meta name="twitter:description" content="For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are ap...">
+
+
+  <meta name="twitter:creator" content="@greeneggs614">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://shamil614.github.io//assets/scott.jpg">
+  <meta property="twitter:image" content="https://shamil614.github.io//assets/scott.jpg">
+
+<meta property="twitter:url" content="https://shamil614.github.io//programming/2019/05/05/authentication_and_authorization_with_graphql.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Authentication and Authorization with GraphQL, Elixir and Absinthe" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shamil614.github.io//programming/2019/05/05/authentication_and_authorization_with_graphql.html" />
+
+  <meta property="og:image" content="https://shamil614.github.io//assets/scott.jpg" />
+
+<meta property="og:description" content="For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are ap..." />
+<meta property="og:site_name" content="Scott Hamilton's Blog" />
+
+  <meta property="article:published_time" content="2019-05-05T12:00:54-05:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <meta property="article:tag" content="elixir">
+  
+    <meta property="article:tag" content="graphql">
+  
+    <meta property="article:tag" content="absinthe">
+  
+    <meta property="article:tag" content="authorization">
+  
+    <meta property="article:tag" content="authentication">
+  
+    <meta property="article:tag" content="phoenix">
+  
+
+
+
+
+
+  
+    <meta property="article:tag" content="programming">
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://shamil614.github.io/programming/2019/05/05/authentication_and_authorization_with_graphql.html">
+
+    
+
+    <link rel="shortcut icon" href="https://shamil614.github.io/favicon.ico">
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Scott Hamilton&#39;s Blog</a>
+    
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about/">About Me</a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/contact.html">Contact</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Authentication and Authorization with GraphQL, Elixir and Absinthe</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2019-05-05T12:00:54-05:00" itemprop="datePublished">
+          
+          May 5, 2019
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Scott Hamilton</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Authentication and Authorization with GraphQL, Elixir and Absinthe</h1>
+    <p class="post-meta">
+      <time datetime="2019-05-05T12:00:54-05:00" itemprop="datePublished">
+        
+        May 5, 2019
+      </time>
+      </p>
+  </header> -->
+
+  <div itemprop="articleBody">
+    <p>For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are appealing. I won’t go into the REST vs GraphQL debate on this post because that’s a post all of it’s own.</p>
+
+<p>In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiences for computing resources and developers.</p>
+
+<p>A little while ago our developer team kicked around the idea of adopting a GraphQL api. During that time I started to research more about GraphQL. While there are many posts covering GraphQL, I didn’t find a lot on Authentication, and Authorization patterns. In this post I will cover what I learned about Authentication / Authorization with Absinthe and GraphQL.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>In order to implement a GraphQL api, the spec must be followed. The easiest way to build out a GraphQL api in Elixir is to use the well featured <a href="https://github.com/absinthe-graphql/absinthe">Absinthe library</a>. While we could use Absinthe alone, it’s best to use <a href="https://github.com/absinthe-graphql/absinthe_plug">Absinthe Plug</a> since it allows for the integration of GraphQL into a http api pipeline via <code class="highlighter-rouge">Plug</code>, and <code class="highlighter-rouge">absinthe_plug</code> requires Absinthe as a dependency. I won’t be able to cover everything. Otherwise this post would have too much information. <a href="https://github.com/shamil614/graphql_blog/tree/auth">View the full code</a> to see all the details.</p>
+
+<h2 id="authentication">Authentication</h2>
+
+<p>As far as I can tell the GraphQL spec doesn’t outline any requriements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here’s how I went about adding Authentication:</p>
+
+<p>Add <code class="highlighter-rouge">absinthe_plug</code> to your deps</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir">  <span class="k">defp</span> <span class="n">deps</span> <span class="k">do</span>
+    <span class="p">[</span>
+      <span class="p">{</span><span class="ss">:absinthe_plug</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.4"</span><span class="p">},</span>
+      <span class="p">{</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.4.0"</span><span class="p">},</span>
+      <span class="o">....</span>
+    <span class="p">]</span>
+  <span class="k">end</span></code></pre></figure>
+
+<p>Setup the router to handle api requests and setup the GraphiQL utility.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog_web/router.ex</span>
+
+<span class="k">defmodule</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Router</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">BlogWeb</span><span class="p">,</span> <span class="ss">:router</span>
+
+  <span class="n">pipeline</span> <span class="ss">:api</span> <span class="k">do</span>
+    <span class="n">plug</span> <span class="ss">:accepts</span><span class="p">,</span> <span class="p">[</span><span class="sd">"</span><span class="s2">json"</span><span class="p">]</span>
+    <span class="n">plug</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Plugs</span><span class="o">.</span><span class="no">Context</span>
+  <span class="k">end</span>
+
+  <span class="n">scope</span> <span class="sd">"</span><span class="s2">/api"</span> <span class="k">do</span>
+    <span class="n">pipe_through</span> <span class="ss">:api</span>
+
+    <span class="n">forward</span> <span class="sd">"</span><span class="s2">/graphiql"</span><span class="p">,</span> <span class="no">Absinthe</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="no">GraphiQL</span><span class="p">,</span>
+      <span class="ss">schema:</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Schema</span><span class="p">,</span>
+      <span class="ss">json_codec:</span> <span class="no">Phoenix</span><span class="o">.</span><span class="n">json_library</span><span class="p">()</span>
+
+    <span class="n">forward</span> <span class="sd">"</span><span class="s2">/"</span><span class="p">,</span> <span class="no">Absinthe</span><span class="o">.</span><span class="no">Plug</span><span class="p">,</span> <span class="ss">schema:</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Schema</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Make sure to install the new deps <code class="highlighter-rouge">mix deps.get</code>.</p>
+
+<p>Now a Plug can be created to read the HTTP Authentication header, look up the User, and pass the <code class="highlighter-rouge">current_user</code> to <code class="highlighter-rouge">Absinthe.run</code> via <code class="highlighter-rouge">context</code> in the <code class="highlighter-rouge">options</code> (<a href="https://hexdocs.pm/absinthe/Absinthe.html#run/3-options">see docs</a>).</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog_web/plugs/contex.ex</span>
+<span class="k">defmodule</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Plugs</span><span class="o">.</span><span class="no">Context</span> <span class="k">do</span>
+  <span class="nv">@behaviour</span> <span class="no">Plug</span>
+
+  <span class="kn">import</span> <span class="no">Plug</span><span class="o">.</span><span class="no">Conn</span>
+  <span class="kn">import</span> <span class="no">Ecto</span><span class="o">.</span><span class="no">Query</span><span class="p">,</span> <span class="ss">only:</span> <span class="p">[</span><span class="ss">where:</span> <span class="m">2</span><span class="p">]</span>
+
+  <span class="n">alias</span> <span class="no">Blog</span><span class="o">.</span><span class="no">Repo</span>
+  <span class="n">alias</span> <span class="no">Blog</span><span class="o">.</span><span class="no">Accounts</span><span class="o">.</span><span class="no">User</span>
+
+  <span class="k">def</span> <span class="n">init</span><span class="p">(</span><span class="n">opts</span><span class="p">),</span> <span class="k">do</span><span class="p">:</span> <span class="n">opts</span>
+
+  <span class="k">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+    <span class="c1"># Absinthe.Plug calls Absinthe.run() with the options added to the `conn`.</span>
+    <span class="no">Absinthe</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="n">put_options</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">context:</span> <span class="n">context</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="nv">@doc</span> <span class="sd">"""
+  Return the current user context based on the authorization header
+  """</span>
+  <span class="k">def</span> <span class="n">build_context</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">with</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Bearer "</span> <span class="o">&lt;&gt;</span> <span class="n">token</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">get_req_header</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">authorization"</span><span class="p">),</span>
+         <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">current_user</span><span class="p">}</span> <span class="o">&lt;-</span> <span class="n">authorize</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">%{</span><span class="ss">current_user:</span> <span class="n">current_user</span><span class="p">}</span>
+    <span class="k">else</span>
+      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">%{}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1"># Note this is a simple token auth strategy. This is should not be used in production.</span>
+  <span class="k">defp</span> <span class="n">authorize</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">do</span>
+    <span class="no">User</span>
+    <span class="o">|&gt;</span> <span class="n">where</span><span class="p">(</span><span class="ss">token:</span> <span class="o">^</span><span class="n">token</span><span class="p">)</span>
+    <span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+    <span class="o">|&gt;</span> <span class="k">case</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">invalid authorization token"</span><span class="p">}</span>
+      <span class="n">user</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user</span><span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Since <code class="highlighter-rouge">Absinthe.run</code> passes along the <code class="highlighter-rouge">context</code>, the <code class="highlighter-rouge">resolvers</code> can handle an authenticated / unauthenticated request. The <code class="highlighter-rouge">schema.ex</code> file defines the <code class="highlighter-rouge">query</code> for <code class="highlighter-rouge">posts</code>, and defines a <code class="highlighter-rouge">resolver</code> for the request.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog_web/schema</span>
+<span class="n">query</span> <span class="k">do</span>
+  <span class="nv">@desc</span> <span class="sd">"</span><span class="s2">Get all posts"</span>
+  <span class="n">field</span> <span class="ss">:posts</span><span class="p">,</span> <span class="n">list_of</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># the third argument passed is the `context` set via `plug`</span>
+    <span class="n">resolve</span><span class="p">(</span><span class="o">&amp;</span><span class="no">Resolvers</span><span class="o">.</span><span class="no">Content</span><span class="o">.</span><span class="n">list_posts</span><span class="o">/</span><span class="m">3</span><span class="p">)</span>
+  <span class="k">end</span>
+  
+  <span class="o">....</span>
+<span class="k">end</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog_web/resolvers/content.ex</span>
+
+<span class="nv">@doc</span> <span class="sd">"""
+Resolve Posts associated to a User, posts independent of a User and Unauthorized Users
+"""</span>
+<span class="k">def</span> <span class="n">list_posts</span><span class="p">(%</span><span class="no">User</span><span class="p">{}</span> <span class="o">=</span> <span class="n">author</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="p">%{</span><span class="ss">context:</span> <span class="p">%{</span><span class="ss">current_user:</span> <span class="n">current_user</span><span class="p">}})</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="no">Content</span><span class="o">.</span><span class="n">list_posts_by_author</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="n">list_posts</span><span class="p">(</span><span class="n">_parent</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="p">%{</span><span class="ss">context:</span> <span class="p">%{</span><span class="ss">current_user:</span> <span class="n">current_user</span><span class="p">}})</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="no">Content</span><span class="o">.</span><span class="n">list_posts</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="n">list_posts</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Access denied"</span><span class="p">}</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>By matching on the context map with a <code class="highlighter-rouge">current_user</code> key, the authenticated user is accounted for. The last head matches for unauthenticated users.</p>
+
+<p>Now with graphiql the Authorization Header can easily be passed in the api call. Navigate to <code class="highlighter-rouge">localhost:4000/api/graphiql</code> then under the <code class="highlighter-rouge">Headers</code> section click <code class="highlighter-rouge">Add</code>. There you can enter a fake token to correspond to a particular user with a value of <code class="highlighter-rouge">Bearer &lt;Some-Token-Matching-A-User&gt;</code>.</p>
+
+<p><img src="/assets/images/graphql_auth/graphiql_add_header.png" alt="Add Header via graphiql" /></p>
+
+<p>Here’s an example query with a valid Authorization token.</p>
+
+<p><img src="/assets/images/graphql_auth/graphiql_auth.png" alt="Valid Token request" /></p>
+
+<p>Remove the header and make the same request.</p>
+
+<p><img src="/assets/images/graphql_auth/graphiql_unauth.png" alt="Invalid Token request" /></p>
+
+<p>Notice that no posts are returned and the payload included an <code class="highlighter-rouge">errors</code> JSON object.</p>
+
+<h2 id="authorization">Authorization</h2>
+
+<p>Authorization is not explicitly covered in the GraphQL spec, it is covered in the <a href="https://graphql.github.io/learn/authorization/">Learn</a> section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.</p>
+
+<p>In my sample code the User schema has a <code class="highlighter-rouge">role</code> attribute. The code has seeds to create a <code class="highlighter-rouge">admin</code> and a <code class="highlighter-rouge">consumer</code> User. The Post schema has an attribute called <code class="highlighter-rouge">private_notes</code> that only Users with a role of <code class="highlighter-rouge">admin</code> can view.</p>
+
+<p>The hook for authorizing a specific field can be implemented via the <code class="highlighter-rouge">post</code> <code class="highlighter-rouge">content type</code>.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog_web/schema/content_types.ex</span>
+
+<span class="k">defmodule</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Schema</span><span class="o">.</span><span class="no">ContentTypes</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Absinthe</span><span class="o">.</span><span class="no">Schema</span><span class="o">.</span><span class="no">Notation</span>
+
+  <span class="n">alias</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Resolvers</span>
+
+  <span class="n">object</span> <span class="ss">:post</span> <span class="k">do</span>
+    <span class="n">field</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:id</span>
+    <span class="n">field</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:string</span>
+    <span class="n">field</span> <span class="ss">:body</span><span class="p">,</span> <span class="ss">:string</span>
+    <span class="n">field</span> <span class="ss">:author</span><span class="p">,</span> <span class="ss">:user</span>
+    <span class="n">field</span> <span class="ss">:published_at</span><span class="p">,</span> <span class="ss">:naive_datetime</span>
+    <span class="n">field</span> <span class="ss">:private_notes</span><span class="p">,</span> <span class="ss">:string</span> <span class="k">do</span>
+      <span class="n">resolve</span><span class="p">(</span><span class="k">fn</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span>
+        <span class="no">Resolvers</span><span class="o">.</span><span class="no">Content</span><span class="o">.</span><span class="n">authorize_post_field</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="ss">:private_notes</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+      <span class="k">end</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The resolver then delegates to the business layer</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="k">defmodule</span> <span class="no">BlogWeb</span><span class="o">.</span><span class="no">Resolvers</span><span class="o">.</span><span class="no">Content</span> <span class="k">do</span>
+  <span class="n">alias</span> <span class="no">Blog</span><span class="o">.</span><span class="no">Accounts</span><span class="o">.</span><span class="no">User</span>
+  <span class="n">alias</span> <span class="no">Blog</span><span class="o">.</span><span class="no">Content</span>
+  <span class="n">alias</span> <span class="no">Blog</span><span class="o">.</span><span class="no">Content</span><span class="o">.</span><span class="no">Post</span>
+
+  <span class="k">def</span> <span class="n">authorize_post_field</span><span class="p">(</span><span class="n">post</span> <span class="o">=</span> <span class="p">%</span><span class="no">Post</span><span class="p">{},</span> <span class="n">field</span><span class="p">,</span> <span class="p">%{</span><span class="ss">context:</span> <span class="p">%{</span><span class="ss">current_user:</span> <span class="n">current_user</span><span class="p">}})</span> <span class="k">do</span>
+    <span class="no">Content</span><span class="o">.</span><span class="n">authorize_post_field</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">authorize_post_field</span><span class="p">(</span><span class="n">_post</span><span class="p">,</span> <span class="n">_field</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Not authorized for field"</span><span class="p">}</span>
+  <span class="k">end</span>
+  
+  <span class="o">.....</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The <code class="highlighter-rouge">Blog.Content</code> is where the business layer logic processes the authorization logic.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="c1"># lib/blog/content.ex</span>
+<span class="k">def</span> <span class="n">authorize_post_field</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="ss">:private_notes</span><span class="p">,</span> <span class="n">_current_user</span> <span class="o">=</span> <span class="p">%</span><span class="no">User</span><span class="p">{</span><span class="ss">role:</span> <span class="sd">"</span><span class="s2">admin"</span><span class="p">})</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="no">Map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="ss">:private_notes</span><span class="p">)}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="n">authorize_post_field</span><span class="p">(</span><span class="n">_post</span><span class="p">,</span> <span class="ss">:private_notes</span><span class="p">,</span> <span class="n">_current_user</span> <span class="o">=</span> <span class="p">%</span><span class="no">User</span><span class="p">{})</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Field not authorized"</span><span class="p">}</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The first function matches on the <code class="highlighter-rouge">admin</code> User role which then returns a <code class="highlighter-rouge">{:ok, &lt;val&gt;}</code> for <code class="highlighter-rouge">admin</code> users. The second function matches for any other user role which returns a <code class="highlighter-rouge">{:error, &lt;message&gt;}</code> tuple preventing the access of the <code class="highlighter-rouge">private_notes</code> field.</p>
+
+<p>Here’s an example query via GraphiQL.</p>
+
+<p>First set a token that belongs to a Admin User.
+<img src="/assets/images/graphql_auth/graphiql_admin_token.png" alt="Admin token set" /></p>
+
+<p>Below is an example query requesting privates notes.
+<img src="/assets/images/graphql_auth/graphiql_admin_private_notes.png" alt="Admin requests private notes" /></p>
+
+<p>Notice that private notes are returned in the response.</p>
+
+<p>Now let’s test what happens for a <code class="highlighter-rouge">consumer</code>.</p>
+
+<p>Set a token belonging to a Consumer User.
+<img src="/assets/images/graphql_auth/graphiql_consumer_token.png" alt="Consumer token set" /></p>
+
+<p>Below is the request for <code class="highlighter-rouge">private_notes</code> by a <code class="highlighter-rouge">consumer</code>.
+<img src="/assets/images/graphql_auth/graphiql_consumer_private_notes.png" alt="Consumer requests private notes" /></p>
+
+<p>The result shows the proper error message define in the business layer module.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Exploring GraphQL and Absinthe provided great insights into the spec, and implementation options available. I’m very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.</p>
+
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+ /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+ /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+  */
+ (function() { // DON'T EDIT BELOW THIS LINE
+     var d = document, s = d.createElement('script');
+     s.src = 'https://https-shamil614-github-io.disqus.com/embed.js';
+     s.setAttribute('data-timestamp', +new Date());
+     (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+
+      <footer class="site-footer">
+        <!-- SVG icons from https://iconmonstr.com -->
+
+        <!-- Github icon -->
+        <span class="my-span-icon">
+          <a href="https://github.com/shamil614" aria-label="shamil614's GitHub" title="shamil614's GitHub">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+        </span>
+
+        <!-- Twitter icon -->
+        <span class="my-span-icon">
+          <a href="https://twitter.com/greeneggs614" aria-label="shamil614's Twitter" title="shamil614's Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about/" aria-label="Contact" title="Contact shamil614">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+
+      </footer>
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-106995426-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>
