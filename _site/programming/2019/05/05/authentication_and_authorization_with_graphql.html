@@ -231,7 +231,7 @@
   <div itemprop="articleBody">
     <p>For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are appealing. I won’t go into the REST vs GraphQL debate on this post because that’s a post all of it’s own.</p>
 
-<p>In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiences for computing resources and developers.</p>
+<p>In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiencies for computing resources and developers.</p>
 
 <p>A little while ago our developer team kicked around the idea of adopting a GraphQL api. During that time I started to research more about GraphQL. While there are many posts covering GraphQL, I didn’t find a lot on Authentication, and Authorization patterns. In this post I will cover what I learned about Authentication / Authorization with Absinthe and GraphQL.</p>
 
@@ -241,7 +241,7 @@
 
 <h2 id="authentication">Authentication</h2>
 
-<p>As far as I can tell the GraphQL spec doesn’t outline any requriements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here’s how I went about adding Authentication:</p>
+<p>As far as I can tell the GraphQL spec doesn’t outline any requirements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here’s how I went about adding Authentication:</p>
 
 <p>Add <code class="highlighter-rouge">absinthe_plug</code> to your deps</p>
 
@@ -366,11 +366,11 @@ Resolve Posts associated to a User, posts independent of a User and Unauthorized
 
 <p><img src="/assets/images/graphql_auth/graphiql_unauth.png" alt="Invalid Token request" /></p>
 
-<p>Notice that no posts are returned and the payload included an <code class="highlighter-rouge">errors</code> JSON object.</p>
+<p>Notice that no posts are returned, and the payload included an <code class="highlighter-rouge">errors</code> JSON object.</p>
 
 <h2 id="authorization">Authorization</h2>
 
-<p>Authorization is not explicitly covered in the GraphQL spec, it is covered in the <a href="https://graphql.github.io/learn/authorization/">Learn</a> section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.</p>
+<p>Authorization is not explicitly covered in the GraphQL spec, it is covered in the <a href="https://graphql.github.io/learn/authorization/">Learn</a> section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically, this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.</p>
 
 <p>In my sample code the User schema has a <code class="highlighter-rouge">role</code> attribute. The code has seeds to create a <code class="highlighter-rouge">admin</code> and a <code class="highlighter-rouge">consumer</code> User. The Post schema has an attribute called <code class="highlighter-rouge">private_notes</code> that only Users with a role of <code class="highlighter-rouge">admin</code> can view.</p>
 
@@ -433,7 +433,7 @@ Resolve Posts associated to a User, posts independent of a User and Unauthorized
 <p>First set a token that belongs to a Admin User.
 <img src="/assets/images/graphql_auth/graphiql_admin_token.png" alt="Admin token set" /></p>
 
-<p>Below is an example query requesting privates notes.
+<p>Below is an example query requesting private notes.
 <img src="/assets/images/graphql_auth/graphiql_admin_private_notes.png" alt="Admin requests private notes" /></p>
 
 <p>Notice that private notes are returned in the response.</p>
@@ -446,11 +446,11 @@ Resolve Posts associated to a User, posts independent of a User and Unauthorized
 <p>Below is the request for <code class="highlighter-rouge">private_notes</code> by a <code class="highlighter-rouge">consumer</code>.
 <img src="/assets/images/graphql_auth/graphiql_consumer_private_notes.png" alt="Consumer requests private notes" /></p>
 
-<p>The result shows the proper error message define in the business layer module.</p>
+<p>The result shows the proper error message that was defined in the business layer module.</p>
 
 <h2 id="conclusion">Conclusion</h2>
 
-<p>Exploring GraphQL and Absinthe provided great insights into the spec, and implementation options available. I’m very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.</p>
+<p>Exploring GraphQL and Absinthe provided great insights into the spec, and ways to implement a GraphQL api. I’m very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.</p>
 
   </div>
 

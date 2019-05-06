@@ -8,7 +8,7 @@ tags: elixir graphql absinthe authorization authentication phoenix
 
 For a while now GraphQL has been a regular topic at programming conferences. While I am a big fan of REST APIs, the touted benefits of GraphQL are appealing. I won't go into the REST vs GraphQL debate on this post because that's a post all of it's own. 
 
-In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiences for computing resources and developers.
+In short, I have worked on very big REST API with many endpoints that added to a lot of developer overhead. Since GraphQL promises a single endpoint for the client to request the desired payload, I could see how it can lead to efficiencies for computing resources and developers.
 
 A little while ago our developer team kicked around the idea of adopting a GraphQL api. During that time I started to research more about GraphQL. While there are many posts covering GraphQL, I didn't find a lot on Authentication, and Authorization patterns. In this post I will cover what I learned about Authentication / Authorization with Absinthe and GraphQL.
 
@@ -19,7 +19,7 @@ In order to implement a GraphQL api, the spec must be followed. The easiest way 
 
 ## Authentication
 
-As far as I can tell the GraphQL spec doesn't outline any requriements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here's how I went about adding Authentication:
+As far as I can tell the GraphQL spec doesn't outline any requirements on how to authenticate a user, which I appreciate. While the GraphQL spec is much more specific then REST, there are certain areas like Authentication where the spec allows for the developer to decide what to implement. In this post I will implement a simple token authentication strategy via HTTP Authentication header. Here's how I went about adding Authentication:
 
 Add `absinthe_plug` to your deps
 
@@ -155,11 +155,11 @@ Remove the header and make the same request.
 
 ![Invalid Token request](/assets/images/graphql_auth/graphiql_unauth.png)
 
-Notice that no posts are returned and the payload included an `errors` JSON object.
+Notice that no posts are returned, and the payload included an `errors` JSON object.
 
 ## Authorization
 
-Authorization is not explicitly covered in the GraphQL spec, it is covered in the [Learn](https://graphql.github.io/learn/authorization/) section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.
+Authorization is not explicitly covered in the GraphQL spec, it is covered in the [Learn](https://graphql.github.io/learn/authorization/) section of the guides. The guide strongly advises the developer to put the Authorization logic in the business logic layer. Basically, this means put the logic in a module outside the GraphQL specific schema, content types, resolvers, etc.
 
 In my sample code the User schema has a `role` attribute. The code has seeds to create a `admin` and a `consumer` User. The Post schema has an attribute called `private_notes` that only Users with a role of `admin` can view. 
 
@@ -228,7 +228,7 @@ Here's an example query via GraphiQL.
 First set a token that belongs to a Admin User.
 ![Admin token set](/assets/images/graphql_auth/graphiql_admin_token.png)
 
-Below is an example query requesting privates notes.
+Below is an example query requesting private notes.
 ![Admin requests private notes](/assets/images/graphql_auth/graphiql_admin_private_notes.png)
 
 Notice that private notes are returned in the response.
@@ -241,8 +241,8 @@ Set a token belonging to a Consumer User.
 Below is the request for `private_notes` by a `consumer`.
 ![Consumer requests private notes](/assets/images/graphql_auth/graphiql_consumer_private_notes.png)
 
-The result shows the proper error message define in the business layer module.
+The result shows the proper error message that was defined in the business layer module.
 
 ## Conclusion
 
-Exploring GraphQL and Absinthe provided great insights into the spec, and implementation options available. I'm very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.
+Exploring GraphQL and Absinthe provided great insights into the spec, and ways to implement a GraphQL api. I'm very impressed with how both GraphQL and Absinthe define and implement the means to handle Authentication and Authorization in an Elixir application. I can see why so many developers are leveraging GraphQL to tackle large APIs.
